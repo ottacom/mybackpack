@@ -1,0 +1,53 @@
+#!/bin/bash
+
+
+get_last () {
+	last=`sqlite3 $HOME/.mybackpack/mybackpack.db "select count(item_id) from items;"`
+}
+
+insert_db () {
+        read -p "Topic:" Topic
+	echo "Content (CTRL-D to finish):"
+        Content=$(cat)
+	while IFS= read -r line
+	do
+		line=$(echo $line | sed "s/\'/\''/g")
+	  	n_Content=$n_Content"\n"$line
+	done < <(printf '%s\n' "$Content")	
+        read -p "Attachment:" Attachment
+	if [ ! -z "$Attachment" ];then
+		Attachment_name="$(basename $Attachment)"
+		Blob=$(base64 $Attachment)
+        	sqlite3 $HOME/.mybackpack/mybackpack.db "insert into items (topic,raw_content,attachment_name,attachment_blob) values ('$Topic','$n_Content','$Attachment_name','$Blob');"
+	else
+        	sqlite3 $HOME/.mybackpack/mybackpack.db "insert into items (topic,raw_content) values ('$Topic','$n_Content');"
+	fi	
+
+}
+chek_entry () {
+	get_last	
+	if [ "$last" -gt "$last1" ]; then
+		echo "OK-Entry added!"
+	else
+		echo "ERROR-A problem occured during last data entry!"
+	fi
+}
+if [[ ! -e "$HOME/.mybackpack/mybackpack.db" ]]
+then
+	if [ ! -d  $HOME/.mybackpack ]; then
+		mkdir $HOME/.mybackpack > /dev/null &
+	fi
+	wget --quiet https://raw.githubusercontent.com/ottacom/mybackpack/master/schema -O $HOME/.mybackpack/schema
+	sqlite3 $HOME/.mybackpack/mybackpack.db < $HOME/.mybackpack/schema
+	echo "Database initialized"
+	get_last
+	last1=$last
+	insert_db
+	chek_entry
+else 
+	get_last
+	last1=$last
+	insert_db
+	chek_entry
+fi
+

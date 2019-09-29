@@ -1,0 +1,6 @@
+#!/bin/bash
+
+
+echo "Item id?"
+read item_id
+sqlite3 $HOME/.mybackpack/mybackpack.db "delete from items where item_id = \"$item_id\";"

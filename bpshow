@@ -1,0 +1,29 @@
+#!/bin/bash
+
+if [[ ! -e "$HOME/.mybackpack/mybackpack.db" ]]
+then
+	wget --quiet https://raw.githubusercontent.com/ottacom/mybackpack/master/schema -O $HOME/.mybackpack/schema
+	sqlite3 $HOME/.mybackpack/mybackpack.db < $HOME/.mybackpack/schema
+	echo "Database initialized"
+else 
+	item_id=$1
+	if [[ -n "$item_id" ]]; then
+                clear
+		record=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select item_id,topic,raw_content,attachment_name from items where item_id='$item_id';")
+                echo "---Item number $item_id----"
+                echo "Topic:$(echo $record|cut -d "|" -f 2)"            
+                echo -e "Content:$(echo $record|cut -d "|" -f 3)"               
+                if [ ! -z "$(echo $record|cut -d "|" -f 4)" ];then
+
+                        echo "Attachment:$(echo $record|cut -d "|" -f 4)"   
+                        echo "Type bpextract $1 to extract the document"
+
+                fi
+                echo "---End of item----"
+
+
+        else
+                sqlite3 $HOME/.mybackpack/mybackpack.db "select item_id,topic,raw_content,attachment_name from items;"
+        fi
+fi
+

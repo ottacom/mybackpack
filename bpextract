@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+extract_attachment () {
+	attachment_name=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select attachment_name from items where item_id='$item_id';") 
+	decode=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select attachment_blob from items where item_id='$item_id';")
+	echo $decode | base64 -D  > /tmp/$attachment_name
+	echo "File $attachment_name has been extracted into /tmp/$attachment_name"
+	
+}
+if [ $# -eq 0 ]; then
+    echo "Please provide the item_id to extract"
+    exit 1
+fi
+if [[ ! -e "$HOME/.mybackpack/mybackpack.db" ]]
+then
+	wget --quiet https://raw.githubusercontent.com/ottacom/mybackpack/master/schema -O $HOME/.mybackpack/schema
+	sqlite3 $HOME/.mybackpack/mybackpack.db < $HOME/.mybackpack/schema
+	echo "Database initialized"
+else 
+	item_id=$1
+	extract_attachment
+fi
+
