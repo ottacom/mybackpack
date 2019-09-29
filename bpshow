@@ -9,13 +9,15 @@ else
 	item_id=$1
 	if [[ -n "$item_id" ]]; then
                 clear
-		record=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select item_id,topic,raw_content,attachment_name from items where item_id='$item_id';")
+		topic=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select topic from items where item_id='$item_id';")
+		raw_content=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select raw_content from items where item_id='$item_id';")
+		attachment_name=$(sqlite3 $HOME/.mybackpack/mybackpack.db "select attachment_name from items where item_id='$item_id';")
                 echo "---Item number $item_id----"
-                echo "Topic:$(echo $record|cut -d "|" -f 2)"            
-                echo -e "Content:$(echo $record|cut -d "|" -f 3)"               
-                if [ ! -z "$(echo $record|cut -d "|" -f 4)" ];then
+                echo "Topic:$topic"            
+                echo -e "Content:$raw_content"               
+                if [ ! -z "$attachment_name" ];then
 
-                        echo "Attachment:$(echo $record|cut -d "|" -f 4)"   
+                        echo "Attachment:$attachment_name"   
                         echo "Type bpextract $1 to extract the document"
 
                 fi
