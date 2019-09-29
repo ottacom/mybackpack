@@ -1,0 +1,8 @@
+CREATE TABLE items (
+    item_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    topic TEXT,
+    raw_content TEXT NOT NULL,
+    attachment_name TEXT,
+    attachment_blob TEXT,
+    Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP 
+);
